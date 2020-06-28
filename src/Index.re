@@ -72,126 +72,6 @@ game.state = {
 // humans counterpart
 let ai = game.state -> AI.make;
 
-// TODO: remove ai teststuff ----------------------------------------------
-let setText = (position, content) => {  
-  
-  switch(Board.getBoardPositionFromFieldCoordinates(board, position)){
-    | Some(point) => point
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#999",
-          ~fontSize=14.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_);      
-    | _ =>{ 
-        let (i,j) = position;      
-        BasicTypes.Point.create(float_of_int(i),float_of_int(j))
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#999",
-          ~fontSize=14.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_); 
-      }      
-  };
-  
-};
-let setText2 = (position, content) => {  
-  
-  switch(Board.getBoardPositionFromFieldCoordinates(board, position)){
-    | Some(point) => point
-    -> BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,34.))
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#0df",
-          ~fontSize=10.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_);      
-    | _ =>{ 
-        let (i,j) = position;      
-        BasicTypes.Point.create(float_of_int(i),float_of_int(j))
-        -> BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,34.))
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#0df",
-          ~fontSize=12.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_); 
-      }      
-  };
-  
-};
-let setText3 = (position, content) => {  
-  
-  switch(Board.getBoardPositionFromFieldCoordinates(board, position)){
-    | Some(point) => point
-    -> BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,-34.))
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#ff0",
-          ~fontSize=10.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_);      
-    | _ =>{ 
-        let (i,j) = position;      
-        BasicTypes.Point.create(float_of_int(i),float_of_int(j))
-        -> BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,-34.))
-        ->PointText.pointTextDescription(
-          ~point=_,
-          ~fillColor="#ff0",
-          ~fontSize=12.,
-          ~fontWeight = "normal",
-          ~content=content,            
-          ~justification="center",
-          (),
-        )
-        ->PointText.createFromObject(_); 
-      }      
-  };
-  
-};
-
-let rec showFieldValues = (board, moveList: AI.moveList):unit => switch(moveList){
-  | [move, ...restList] => {      
-    
-    setText3(move.position,  string_of_int(move.weight));
-    setText(move.position,  string_of_float(move.value));
-
-    showFieldValues(board,restList);
-  }
-  | [] => ()
-}; 
-
-let removeAiStuff = unit => {
-  Paper.activateLayer(aiLayer);
-  for (i in Array.length(aiLayer.children) - 1 downto 0) {
-    Paper.Path.remove(aiLayer.children[i]);
-  };
-  ();
-};
-// ------------------------------------------------------------------------
-
-
 
 /**
  * Event System
@@ -250,12 +130,6 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
 
                 ai.possibleMoves->AI.calcFieldValues(state);
                 
-                // TODO: remove ai teststuff -----
-                  Paper.activateLayer(aiLayer);                         
-                  removeAiStuff();
-                  board->showFieldValues(ai.possibleMoves);
-                //--------------------------------
-
                 Paper.activateLayer(boardLayer);                         
                 board -> Board.setPiece(position, color);
                 board.display -> Display.timeReset;
@@ -321,20 +195,16 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
         action: GameLogic.(`nothing)
       };
     }
-    | `aiNextStep(t) => if(t mod 120 == 0){    
-
-        
+    | `aiNextStep(t) => if(t mod 120 == 0){            
         let move = state -> AI.getBestMove(ai.possibleMoves);
         let action = switch(move){
           |Some(move) => GameLogic.(`makeMove(move.position));
           | _ =>  GameLogic.(`showGameResult)
-        };
-        
+        };        
         {
           ...state,
           action: action
-        };
-          
+        };          
         }else{
           {
           ...state,
@@ -362,7 +232,6 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
             ();    
           };
       };
-
       let action = switch(currPlayer){
         | AI(_,_) => GameLogic.(`aiNextStep(1))
         | _ => GameLogic.(`nothing)
@@ -374,10 +243,8 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
       };
     }
     | _ => state
-  };
-      
+  };      
 };
-
 
 // the game loop is driven by the 'onFrame' event of the renderer loop 
 let onFrameHandler = (event: ToolEvent.t) => {

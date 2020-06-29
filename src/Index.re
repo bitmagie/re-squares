@@ -26,8 +26,6 @@ let removeResults = unit => {
   ();
 };
 
-
-
 let overlayLayer = Paper.createLayer();
 
 let overlayPathStyle = Styling.styleDescription(~fillColor="#ff0000", ());
@@ -52,9 +50,9 @@ let format: Layout.format =
     Portrait(viewWidth, viewHeight);
   };
 
-// init board renderer
+// init renderer
 Paper.activateLayer(boardLayer);
-let board = Board.make(~position=Paper.view.center, ~format);
+let renderer = GameRenderer.init(~position=Paper.view.center, ~format);
 
 
 /** 
@@ -82,7 +80,7 @@ let tool = Tool.create();
 
 // the human player interaction with the game logic is driven by the graphics library's onMouseUp event 
 let interAction:Game.interAction(ToolEvent.t, Game.state) = (event, state) => {   
-   let action:GameLogic.action = switch(board -> Board.getFieldCoordinatesFromBoardPosition(event.point) ){
+   let action:GameLogic.action = switch(renderer -> GameRenderer.getFieldCoordinatesFromMousePosition(event.point) ){
      |Some(position) => `makeMove(position)
      | _ => `nothing
    };
@@ -104,15 +102,15 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
   // game clock
   switch (int_of_float(event.count)) {
     | t when t mod 60 == 0 =>      
-      Display.timeTick(~display=board.display);
+      GameRenderer.timeTick(renderer);
       ();
     | t when t mod 30 == 0 =>   
-      let playerScore:Display.playerScore = switch(state.currPlayer)  {
+      let playerScore:GameRenderer.playerScore = switch(state.currPlayer)  {
         | Human(_,score) => Human(score)
         | AI(_,score) => AI(score)
         | _ => Ghost
       };
-      board.display -> Display.blink(playerScore);
+      renderer -> GameRenderer.blink(playerScore);
       ();       
     | _ => ()
     };
@@ -131,9 +129,9 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
                 ai.possibleMoves->AI.calcFieldValues(state);
                 
                 Paper.activateLayer(boardLayer);                         
-                board -> Board.setPiece(position, color);
-                board.display -> Display.timeReset;
-                board.display -> Display.moveTick(~display=_);                
+                renderer -> GameRenderer.setPiece(position, color);
+                renderer -> GameRenderer.timeReset;
+                renderer -> GameRenderer.moveTick;                
 
                 let result = Game.findAllSquares(state,position);
                 let action:GameLogic.action = if(List.length(result)>0){
@@ -169,15 +167,15 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
               }
             | [square, ...restList] => 
                Paper.activateLayer(resultLayer);   
-               board -> Board.showResult(square, List.length(result));  
-              let playerScore:Display.playerScore = switch(state.currPlayer){         
+               renderer -> GameRenderer.showResult(square, List.length(result));  
+              let playerScore:GameRenderer.playerScore = switch(state.currPlayer){         
                   | Human(color,_)=> Human(square.score)
                   | AI(color,_)  => AI(square.score)
                   | _ => Ghost
                 };
                  
               Paper.activateLayer(boardLayer);             
-              board.display -> Display.addScore(playerScore);
+              renderer -> GameRenderer.addScore(playerScore);
 
               {
                 ...state, 

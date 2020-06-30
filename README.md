@@ -9,3 +9,59 @@ Two players take turns placing pieces on the board. These pieces can't move once
 
 [online play against an AI](https://bitmagie.de/re-squares/)
 
+
+# Build
+
+The following is used in this project:
+
++ Node.js 
++ Yarn
++ VSCode with 'reason-vscode' plugin
+
+Further information can be found here : [ReasonML Docs](https://reasonml.github.io/docs/en/editor-plugins)
+
+If you have installed Node and Yarn, initialize the project in the projects root folder with
+```
+yarn 
+```
+
+
+## Development workflow
+
+In the projects root folder:
+
+Compile the code with
+```
+yarn "bsb:build"
+```
+
+Test the code with
+```
+yarn "test"
+```
+
+Remove all compiled files with
+```
+yarn "bsb:clean"
+```
+
+Compile code in watch mode with
+```
+yarn "bsb:start"
+```    
+
+Run DevServer with 
+```
+yarn "server"
+```
+
+## Production workflow
+
+In the projects root folder:
+
+Compile the code with
+```
+yarn "build"
+```
+
+The code for deployment is under the dist folder.  If you wish to run the code under a subfolder of the webservers documentroot,  you have to adjust the paths accordingly inside the index.html file.

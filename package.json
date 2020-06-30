@@ -34,11 +34,10 @@
   "main": "index.bs.js",
   "scripts": {
     "bsb:build": "bsb -make-world",
-    "bsb:start": "bsb -make-world -w -ws _ ",
-    "bsb:clean": "bsb -clean-world",
-
-    "server": "webpack-dev-server --env.env=dev",    
     "test": "node_modules\\.bin\\jest",
+    "bsb:clean": "bsb -clean-world",
+    "bsb:start": "bsb -make-world -w -ws _ ",
+    "server": "webpack-dev-server --env.env=dev",    
     "build": "cross-env NODE_ENV=production webpack -p --env.env=prod"
   },
   

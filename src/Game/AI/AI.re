@@ -9,10 +9,8 @@ type move = {
   mutable value: float
 };
 
-type moveList = list(move);
-
 type t = {
-  mutable possibleMoves: moveList,
+  mutable possibleMoves: list(move),
 };
 
 
@@ -20,7 +18,7 @@ type t = {
 /** 
  * Heuristic
  */
-let rec calcFieldValue = (p0,state:Game.state, color, patterns:GameLogic.listOfSquarePatterns) => switch(patterns) {
+let rec calcFieldValue = (p0,state:Game.state, color, patterns:list(SquarePattern.t)) => switch(patterns) {
   | [] => 0.
   | [pattern, ...restList] =>         
    
@@ -35,11 +33,11 @@ let rec calcFieldValue = (p0,state:Game.state, color, patterns:GameLogic.listOfS
     switch(state.dim->SquarePattern.checkRange(square)){
       | Valid(square)  => {
         
-        let field1:GameLogic.field = square.p1->
+        let field1:Game.field = square.p1->
           Game.getFieldAtPosition(state.board,_); 
-        let field2:GameLogic.field = square.p2->
+        let field2:Game.field = square.p2->
           Game.getFieldAtPosition(state.board,_); 
-        let field3:GameLogic.field = square.p3->
+        let field3:Game.field = square.p3->
           Game.getFieldAtPosition(state.board,_); 
         switch(
           field1,
@@ -61,7 +59,7 @@ let rec calcFieldValue = (p0,state:Game.state, color, patterns:GameLogic.listOfS
     } +. calcFieldValue(p0, state, color, restList);    
 }; 
 
-let rec calcFieldValuesForPossibleMoves = (possibleMoves:moveList ,state:Game.state, aiColor, humanColor) => switch(possibleMoves){  
+let rec calcFieldValuesForPossibleMoves = (possibleMoves:list(move) ,state:Game.state, aiColor, humanColor) => switch(possibleMoves){  
   | [] => []
   | [move, ...restList] => 
     move.value = calcFieldValue(move.position,state, humanColor, state.patterns)
@@ -69,7 +67,7 @@ let rec calcFieldValuesForPossibleMoves = (possibleMoves:moveList ,state:Game.st
     [ move, ...calcFieldValuesForPossibleMoves(restList, state, aiColor, humanColor)];
 };
 
-let calcFieldValues = (possibleMoves:moveList , state:Game.state) => switch(state.ai,state.human){
+let calcFieldValues = (possibleMoves:list(move) , state:Game.state) => switch(state.ai,state.human){
      | (AI(aiColor,_),Human(humanColor,_)) =>      
       calcFieldValuesForPossibleMoves(possibleMoves, state, aiColor, humanColor);
      | _ => possibleMoves

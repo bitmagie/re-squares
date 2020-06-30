@@ -80,7 +80,7 @@ let tool = Tool.create();
 
 // the human player interaction with the game logic is driven by the graphics library's onMouseUp event 
 let interAction:Game.interAction(ToolEvent.t, Game.state) = (event, state) => {   
-   let action:GameLogic.action = switch(renderer -> GameRenderer.getFieldCoordinatesFromMousePosition(event.point) ){
+   let action:Game.action = switch(renderer -> GameRenderer.getFieldCoordinatesFromMousePosition(event.point) ){
      |Some(position) => `makeMove(position)
      | _ => `nothing
    };
@@ -134,10 +134,10 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
                 renderer -> GameRenderer.moveTick;                
 
                 let result = Game.findAllSquares(state,position);
-                let action:GameLogic.action = if(List.length(result)>0){
+                let action:Game.action = if(List.length(result)>0){
                   `reduceResultList(result)
                 }else{
-                  GameLogic.(`togglePlayer);
+                  Game.(`togglePlayer);
                 };
                 {
                   ...state,                
@@ -146,13 +146,13 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
               }
               | _ => {
                   ...state,                
-                action: GameLogic.(`togglePlayer)
+                action: Game.(`togglePlayer)
               }
             };
           }
           | _ => {
             ...state,                
-            action: GameLogic.(`nothing)
+            action: Game.(`nothing)
           }
         };        
     }
@@ -163,7 +163,7 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
             | [] => 
               {
                 ...state, 
-                action: GameLogic.(`togglePlayer)
+                action: Game.(`togglePlayer)
               }
             | [square, ...restList] => 
                Paper.activateLayer(resultLayer);   
@@ -179,7 +179,7 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
 
               {
                 ...state, 
-                action: GameLogic.(`reduceResultList(restList))
+                action: Game.(`reduceResultList(restList))
               };
 
           };
@@ -190,14 +190,14 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
       Js.log("*** showGameResult! ***");
       {
         ...state,
-        action: GameLogic.(`nothing)
+        action: Game.(`nothing)
       };
     }
     | `aiNextStep(t) => if(t mod 120 == 0){            
         let move = state -> AI.getBestMove(ai.possibleMoves);
         let action = switch(move){
-          |Some(move) => GameLogic.(`makeMove(move.position));
-          | _ =>  GameLogic.(`showGameResult)
+          |Some(move) => Game.(`makeMove(move.position));
+          | _ =>  Game.(`showGameResult)
         };        
         {
           ...state,
@@ -206,7 +206,7 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
         }else{
           {
           ...state,
-          action: GameLogic.(`aiNextStep(t+1))
+          action: Game.(`aiNextStep(t+1))
           }
         };
       
@@ -231,8 +231,8 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
           };
       };
       let action = switch(currPlayer){
-        | AI(_,_) => GameLogic.(`aiNextStep(1))
-        | _ => GameLogic.(`nothing)
+        | AI(_,_) => Game.(`aiNextStep(1))
+        | _ => Game.(`nothing)
       };
       {
         ...state,

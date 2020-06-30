@@ -1,17 +1,53 @@
-open GameLogic;
+type action = [
+| `makeMove(Position.t)
+| `reduceResultList(list(SquarePattern.t))
+| `togglePlayer
+| `aiNextStep(int)
+| `showGameResult
+| `nothing
+];
+
+type cssColor = string;
+type score = int;
+
+type player =
+    | Human(cssColor,score)
+    | AI(cssColor,score)
+    | Ghost
+; 
+
+type field= 
+    | Occupied(cssColor)
+    | Empty
+    ;
+
+let isFieldEmpty = (field) => {
+    switch(field){
+        |Empty => true
+        |_ => false
+    };
+};
+
+let getFieldColor = field => switch(field){
+    | Occupied(cssColor) => cssColor
+    | _ => ""
+}; 
+
+type fieldMatrix = array(array(field));
 type state = {
     dim: Layout.dim,
     human: player,
     ai: player, 
     currPlayer: player,
     board: fieldMatrix,
-    patterns: listOfSquarePatterns,  
-    result: searchResult,
+    patterns: list(SquarePattern.t),  
+    result: list(SquarePattern.t),
     action: action,
   };
 type t = {
   mutable state: state
 };
+
 
 type loop('event,'state) = ('event, 'state) => state;
 type interAction('event,'state) = ('event, 'state) => state;
@@ -60,7 +96,7 @@ let getOtherPlayer = (state, player) => {
     };
 };
 
-let makeMove = (state, position, color):checkedMove => {
+let makeMove = (state, position, color):Position.checked => {
     let p0 = state.dim->Position.checkRange(position);
     switch(p0){
        |Valid(position) => {
@@ -77,7 +113,7 @@ let makeMove = (state, position, color):checkedMove => {
     };
 }; 
 
-let undoMove = (state, position):checkedMove => {
+let undoMove = (state, position):Position.checked => {
     let p0 = state.dim->Position.checkRange(position);
     switch(p0){
        |Valid(position) => {

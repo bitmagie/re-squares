@@ -1,7 +1,7 @@
 open Jest;
 open Expect;
 
-describe("Position", () => {
+describe("Position", () => {  
   describe("checkRange for a 9x9 game board", () =>      {
       test("(0,0) is a valid position",() => {
         Position.checkRange(9,(0, 0),)->expect |> toEqual(Position.Valid((0, 0)));    

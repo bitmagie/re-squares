@@ -1,11 +1,3 @@
-type action = [
-| `makeMove(Position.t)
-| `reduceResultList(list(SquarePattern.t))
-| `togglePlayer
-| `aiNextStep(int)
-| `showGameResult
-| `nothing
-];
 
 type cssColor = string;
 type score = int;
@@ -34,6 +26,17 @@ let getFieldColor = field => switch(field){
 }; 
 
 type fieldMatrix = array(array(field));
+
+type action = [
+| `makeMove(Position.t)
+| `reduceResultList(list(SquarePattern.t))
+| `togglePlayer
+| `aiNextStep(int)
+| `showGameResult(player)
+| `nothing
+];
+
+
 type state = {
     dim: Layout.dim,
     human: player,
@@ -150,3 +153,14 @@ let findAllSquares = (state, position) => {
     |> List.map(patternCoversSquare(state.board))
     |> List.filter(SquarePattern.notNull)
 };
+
+let getWinner = (player1,player2) => switch(player1,player2){
+        | (Human(humanColor,humanScore),AI(aiColor,aiScore)) 
+        | (AI(aiColor,aiScore),Human(humanColor,humanScore)) when max(aiScore,humanScore)>= 150 && abs(aiScore - humanScore) >= 5 =>
+                if(aiScore>humanScore){
+                    AI(aiColor,aiScore);
+                }else{
+                    Human(humanColor,humanScore);
+                }
+        | _ => Ghost
+    };

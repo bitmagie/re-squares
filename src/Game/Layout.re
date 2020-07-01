@@ -5,4 +5,4 @@ type format =
 
 type dim = int;
 
-let fieldsPerSide:dim = 9;
+let fieldsPerSide:dim = 8;

@@ -25,6 +25,11 @@ If you have installed Node and Yarn, initialize the project in the projects root
 yarn 
 ```
 
+Install cross-env with
+```
+npm install -g cross-env
+```
+
 
 ## Development workflow
 
@@ -61,7 +66,12 @@ In the projects root folder:
 
 Compile the code with
 ```
-yarn "build"
+yarn "bsb:build"
+```
+
+Pack for distributen with
+```
+yarn build
 ```
 
 The code for deployment is under the dist folder.  If you wish to run the code under a subfolder of the webservers documentroot,  you have to adjust the paths accordingly inside the index.html file.

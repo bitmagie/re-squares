@@ -161,33 +161,78 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
         | t when t mod 10 == 0 =>    
           switch(result){
             | [] => 
+              // let winner = Game.getWinner(state.human,state.ai); // arguments order doesn't matter
+              let winner = Game.getWinner(state.ai,state.human);
+
+              let action = switch(winner){
+                | Ghost => Game.(`togglePlayer)
+                | _ => Game.(`showGameResult(winner))
+              };
               {
                 ...state, 
-                action: Game.(`togglePlayer)
+                action: action
               }
+            
             | [square, ...restList] => 
                Paper.activateLayer(resultLayer);   
                renderer -> GameRenderer.showResult(square, List.length(result));  
-              let playerScore:GameRenderer.playerScore = switch(state.currPlayer){         
-                  | Human(color,_)=> Human(square.score)
-                  | AI(color,_)  => AI(square.score)
-                  | _ => Ghost
+
+              
+
+              let human:Game.player = switch(state.currPlayer){         
+                  | Human(color,score)=> {
+                      Js.log2("human score = ", score + square.score);
+                      Human(color,score + square.score);
+                    }
+                  | _ => state.human
                 };
+              let ai:Game.player = switch(state.currPlayer){                           
+                  | AI(color,score)  => {
+                    Js.log2("ai score = ", score + square.score);
+                    AI(color,score + square.score);
+                    }
+                  | _ => state.ai
+                };
+                
+              let currPlayer:Game.player = switch(state.currPlayer){         
+                  | Human(color,score)=> human                           
+                  | AI(color,score)=> ai
+                  | _ => state.currPlayer
+                };
+
+              let playerScore:GameRenderer.playerScore = switch(currPlayer){         
+                  | Human(_,score)=> Human(score)                  
+                  | AI(_,score)  => AI(score)
+                  | _ => Ghost
+                };  
                  
               Paper.activateLayer(boardLayer);             
-              renderer -> GameRenderer.addScore(playerScore);
+              renderer -> GameRenderer.setScore(playerScore);
 
               {
                 ...state, 
+                human,
+                ai,
+                currPlayer,
                 action: Game.(`reduceResultList(restList))
               };
 
           };
         | _ => state
     }
-    | `showGameResult => {
+    | `showGameResult(winner) => {
       // TODO: display game result
-      Js.log("*** showGameResult! ***");
+
+      let message = switch(winner){
+          | Human(_, _) => "You win!"
+          | AI(_, _) => "I win!"
+          | _ => "?????????????"
+      }
+      
+      Paper.activateLayer(overlayLayer);   
+      overlayPath.opacity = 0.5;
+      overlayLayer.visible = true; 
+      renderer->GameRenderer.showGameResult( message);
       {
         ...state,
         action: Game.(`nothing)
@@ -197,9 +242,9 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
         let move = state -> AI.getBestMove(ai.possibleMoves);
         let action = switch(move){
           |Some(move) => Game.(`makeMove(move.position));
-          | _ =>  Game.(`showGameResult)
+          | _ =>  Game.(`showGameResult(Game.(Ghost)))
         };        
-        {
+        { 
           ...state,
           action: action
         };          

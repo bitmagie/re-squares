@@ -4,6 +4,8 @@ module DisplayItem: {
   let setPosition: (t, BasicTypes.Point.t) => t;
   let addPosition: (Paper.CompoundPath.t, BasicTypes.Point.t, float) => t;
 
+  let makeTextPath: (~point: BasicTypes.Point.t, ~fillColor:string,~fontSize:float,~fontWeight:string,~justification:string,~content:string) => PointText.t;
+
   let make: (~color:string, ~title:string, ~value:string) => t;
 
 } = {
@@ -64,7 +66,7 @@ module Display: {
   type playerScore = | Human(int) | AI(int) | Ghost;
   
   let make: (Paper.Point.t, Layout.format) => t;
-  let addScore: (option(t), playerScore) => unit;
+  let setScore: (option(t), playerScore) => unit;
   let blink: (option(t), playerScore) => unit;
   let timeTick: (~display: option(t)) => unit;
   let timeReset: (option(t)) => unit;
@@ -308,31 +310,29 @@ let moveReset = (~display: option(t), ~maxMoves: int ) => {
   };
 };
 
-let addScore = (display, playerScore) => {
+let setScore = (display, playerScore) => {
     switch(display){
       |Some(display) => {
           switch(playerScore){
           | Human(score) => {
-                let (hiScore,path) = display.player1;
-                let newScore = hiScore + score;
+              let (_,path) = display.player1;               
               
-              let newContent = "1 " ++ intToString(~integer=newScore, ~width=3);
+              let content = "1 " ++ intToString(~integer=score, ~width=3);
               let children = Paper.CompoundPath.getPointextChildren(path);
-              children[1].content = newContent;
+              children[1].content = content;
 
-              display.player1 = (newScore,path);
+              display.player1 = (score,path);
                
                 ();
           }
           | AI(score) => {
-                let (hiScore,path) = display.player2;
-                let newScore = hiScore + score;
+              let (_,path) = display.player2;               
               
-              let newContent = "2 " ++ intToString(~integer=newScore, ~width=3);
+              let content = "2 " ++ intToString(~integer=score, ~width=3);
               let children = Paper.CompoundPath.getPointextChildren(path);
-              children[1].content = newContent;
+              children[1].content = content;
 
-              display.player2 = (newScore,path);
+              display.player2 = (score,path);
                
                 ();
           }
@@ -437,6 +437,7 @@ module Board:{
     fieldSize: Paper.Size.t,
     fields: array(array(option(Field.t))),
     originDistance: Paper.Point.t,
+    center: Paper.Point.t,
     mutable disabled: bool,
     display: option(Display.t),
   };
@@ -459,6 +460,7 @@ type t = {
   fieldSize: Paper.Size.t,
   fields: array(array(option(Field.t))),
   originDistance: Paper.Point.t,
+  center: Paper.Point.t,
   mutable disabled: bool,
   display: option(Display.t),
 };
@@ -638,10 +640,10 @@ let make = (~position: Paper.Point.t, ~format: Layout.format) => {
 
   let offsetVector =
     boardPosition->Paper.Point.subtractPoint(backgroundPath.position);
-  ignore(
+  
     backgroundPath.position =
-      Paper.Point.addPoint(backgroundPath.position, offsetVector),
-  );
+      Paper.Point.addPoint(backgroundPath.position, offsetVector);
+  
 
   let fieldSideLength = (length -. Styles.boardMargin) /. float_of_int(n);
 
@@ -768,6 +770,7 @@ let make = (~position: Paper.Point.t, ~format: Layout.format) => {
     fieldSize,
     fields: fieldArray,
     originDistance,
+    center: backgroundPath.position,
     disabled: false,
     display,
   };
@@ -869,7 +872,8 @@ let getFieldCoordinatesFromMousePosition = Board.getFieldCoordinatesFromBoardPos
 let timeTick = (renderer:t) => Display.timeTick(~display=renderer.display);
 let timeReset = (renderer:t) => Display.timeReset(renderer.display);
 let blink = (renderer:t, playerScore) => Display.blink(renderer.display,playerScore);
-let addScore = (renderer:t, playerScore) => Display.addScore(renderer.display,playerScore);
+let setScore = (renderer:t, playerScore) => Display.setScore(renderer.display,playerScore);
 let setPiece = (renderer, position, color) => renderer->Board.setPiece(position, color);
 let moveTick = (renderer:t) => Display.moveTick(~display=renderer.display);
 let showResult = (renderer,square,resultLength) => renderer->Board.showResult(square,resultLength);
+let showGameResult = (renderer:t, text) => renderer.center->DisplayItem.makeTextPath(~point=_, ~fillColor="#ff0",~fontSize=70.,~fontWeight="bold",~justification="center",~content=text);

@@ -12,6 +12,7 @@ module DisplayItem: {
     
 type t = Paper.CompoundPath.t;
 
+
 let makeTextPath = (~point, ~fillColor,~fontSize,~fontWeight,~justification,~content) => {
       point
       ->PointText.pointTextDescription(
@@ -311,6 +312,7 @@ let moveReset = (~display: option(t), ~maxMoves: int ) => {
 };
 
 let setScore = (display, playerScore) => {
+  Js.log2("Display.setScore(playerScore)",playerScore)   
     switch(display){
       |Some(display) => {
           switch(playerScore){
@@ -444,10 +446,13 @@ module Board:{
 
   let make: (~position: Paper.Point.t, ~format: Layout.format) => t;
   let getFieldCoordinatesFromBoardPosition: (t, Paper.Point.t) => option((int, int));
+  let getBoardPositionFromFieldCoordinates: (t, (int, int)) => option(Paper.Point.t); 
   let setPiece: (t, Position.t , string) => unit;
 
   let showResult: (t, SquarePattern.t, int) => unit;
 
+  let onMouseEnterHandler: (MouseEvent.t) => unit;
+  let onMouseLeaveHandler: (MouseEvent.t) => unit;
 
 } = {
     
@@ -869,6 +874,7 @@ type playerScore = Display.playerScore = | Human(int) | AI(int) | Ghost;
 
 let init = Board.make; 
 let getFieldCoordinatesFromMousePosition = Board.getFieldCoordinatesFromBoardPosition;
+let getBoardPositionFromFieldCoordinates = Board.getBoardPositionFromFieldCoordinates;
 let timeTick = (renderer:t) => Display.timeTick(~display=renderer.display);
 let timeReset = (renderer:t) => Display.timeReset(renderer.display);
 let blink = (renderer:t, playerScore) => Display.blink(renderer.display,playerScore);
@@ -876,4 +882,32 @@ let setScore = (renderer:t, playerScore) => Display.setScore(renderer.display,pl
 let setPiece = (renderer, position, color) => renderer->Board.setPiece(position, color);
 let moveTick = (renderer:t) => Display.moveTick(~display=renderer.display);
 let showResult = (renderer,square,resultLength) => renderer->Board.showResult(square,resultLength);
-let showGameResult = (renderer:t, text) => renderer.center->DisplayItem.makeTextPath(~point=_, ~fillColor="#ff0",~fontSize=70.,~fontWeight="bold",~justification="center",~content=text);
+let showWinMessage = (renderer:t, text) => {
+  renderer.center->BasicTypes.Point.addPoint(BasicTypes.Point.create(0., -90.))->DisplayItem.makeTextPath(~point=_, ~fillColor=Styles.gameOverFillColor,~fontSize=Styles.winMessageFontSize,~fontWeight=Styles.winMessageFontWeight,~justification=Styles.winMessageJustification,~content="Game Over");
+  renderer.center->DisplayItem.makeTextPath(~point=_, ~fillColor=Styles.winMessageFillColor,~fontSize=Styles.winMessageFontSize,~fontWeight=Styles.winMessageFontWeight,~justification=Styles.winMessageJustification,~content=text);
+  
+  let button=BasicTypes.Point.create(0., 0.)
+  ->Paper.Rectangle.createFromPoint(BasicTypes.Size.create(Styles.buttonWidth,Styles.buttonHeight))
+  ->Paper.Path.rectangle(_, ~radius=BasicTypes.Size.create(Styles.buttonCornerRadius,Styles.buttonCornerRadius), ())
+  ->Paper.Path.setStyle(~path=_, ~style=Styling.styleDescription(~strokeColor=Styles.buttonStrokeColor,~strokeWidth=Styles.buttonStrokeWidth,~fillColor=Styles.buttonFillColor,~opacity=1.,()));  
+  button.position = renderer.center->BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,130.));  
+  button;
+  renderer.center->BasicTypes.Point.addPoint(BasicTypes.Point.create(0.,130.))->DisplayItem.makeTextPath(~point=_, ~fillColor=Styles.newGameFillColor,~fontSize=Styles.winMessageFontSize/.2.,~fontWeight=Styles.winMessageFontWeight,~justification=Styles.winMessageJustification,~content="New Game");
+  ();
+};
+
+let removeAllHandlersFromPath = (boardItem:Paper.Path.t) => {
+   if(Paper.Path.pathResponds(boardItem,"mouseenter")){
+      Paper.Path.pathEventHandlerOff(boardItem,"mouseenter", Board.onMouseEnterHandler);
+      ();
+    }else{
+      ();
+    };
+    if(Paper.Path.pathResponds(boardItem,"mouseleave")){
+      Paper.Path.pathEventHandlerOff(boardItem,"mouseleave", Board.onMouseLeaveHandler);
+      ();
+    }else{
+      ();
+    };
+  ();
+};

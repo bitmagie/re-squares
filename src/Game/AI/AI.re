@@ -1,6 +1,16 @@
 
+/**
+ * AI debug
+ * 
+ * show the values of the heuristic calculation in the fields
+ */
+let debug = false;
+// -----------------------------------------------------------
+
 type aiValue = float;
 type humanValue = float;
+
+
 
 type move = {
   position: (int, int),
@@ -12,6 +22,7 @@ type move = {
 type t = {
   mutable possibleMoves: list(move),
 };
+
 
 
 

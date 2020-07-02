@@ -33,6 +33,8 @@ npm install -g cross-env
 
 ## Development workflow
 
+Adjust the ip address off your development machine inside build-utils/webpack.dev.js , then you can call the game under this ip address port 3000.
+
 In the projects root folder:
 
 Compile the code with
@@ -74,4 +76,4 @@ Pack for distributen with
 yarn build
 ```
 
-The code for deployment is under the dist folder.  If you wish to run the code under a subfolder of the webservers documentroot,  you have to adjust the paths accordingly inside the index.html file.
+The code for deployment is under the dist folder.  If you wish to run the code under a subfolder of a webservers documentroot,  you have to adjust the paths accordingly inside the index.html file.

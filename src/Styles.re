@@ -64,3 +64,19 @@ let displayItemHeight = 10.;
 let displayItemWidth = 70.;
 
 let resultColors = [|"#DB0E00", "#9D00E0", "#00AD2F", "#A100DB", "#0078E0"|];
+
+let overlayPathStyle = Styling.styleDescription(~fillColor="#6707FA", ());
+let gameOverFillColor="#FA9920";
+let winMessageFillColor="#B51415";
+let newGameFillColor="#7BFA20";
+let buttonStrokeColor="#14B7FA";
+let buttonFillColor = "#6707FA";
+
+let winMessageFontSize=65.;
+let winMessageFontWeight="bold";
+let winMessageJustification="center";
+
+let buttonWidth=190.;
+let buttonHeight=60.;
+let buttonCornerRadius=5.;
+let buttonStrokeWidth=5.0;   

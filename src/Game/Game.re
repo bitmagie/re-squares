@@ -2,6 +2,9 @@
 type cssColor = string;
 type score = int;
 
+let minScore = 150;
+let diffScore = 5;
+
 type player =
     | Human(cssColor,score)
     | AI(cssColor,score)
@@ -27,12 +30,15 @@ let getFieldColor = field => switch(field){
 
 type fieldMatrix = array(array(field));
 
+
 type action = [
 | `makeMove(Position.t)
 | `reduceResultList(list(SquarePattern.t))
 | `togglePlayer
 | `aiNextStep(int)
 | `showGameResult(player)
+| `showMoveResult(int)
+| `newGame
 | `nothing
 ];
 
@@ -48,14 +54,15 @@ type state = {
     action: action,
   };
 type t = {
-  mutable state: state
+  mutable state: state,
+  mutable renderer: GameRenderer.t
 };
 
 
 type loop('event,'state) = ('event, 'state) => state;
 type interAction('event,'state) = ('event, 'state) => state;
 
-let setup = (~dim:int):t => {  
+let setup = (~dim:int, ~renderer: GameRenderer.t):t => {  
   {
     state: {
         dim,
@@ -66,7 +73,8 @@ let setup = (~dim:int):t => {
         patterns: SquarePattern.initSearchList(dim),
         result: [],
         action: `nothing,
-    }
+    },
+    renderer
   };
 };
 
@@ -156,7 +164,7 @@ let findAllSquares = (state, position) => {
 
 let getWinner = (player1,player2) => switch(player1,player2){
         | (Human(humanColor,humanScore),AI(aiColor,aiScore)) 
-        | (AI(aiColor,aiScore),Human(humanColor,humanScore)) when max(aiScore,humanScore)>= 150 && abs(aiScore - humanScore) >= 5 =>
+        | (AI(aiColor,aiScore),Human(humanColor,humanScore)) when max(aiScore,humanScore)>= minScore && abs(aiScore - humanScore) >= diffScore =>
                 if(aiScore>humanScore){
                     AI(aiColor,aiScore);
                 }else{

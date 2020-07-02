@@ -121,6 +121,11 @@ and Path: {
   [@bs.module "paper"] [@bs.scope "Path"] [@bs.val]
   external star: (center, points, radius1, radius2) => path = "Star";
 
+  
+  [@bs.send] external pathResponds: (path,string) => bool = "responds";
+  [@bs.send] external pathEventHandlerOn: (path,string, eventHandler) => unit = "on";
+  [@bs.send] external pathEventHandlerOff: (path,string, eventHandler) => unit = "off";
+
   [@bs.send] external removeOnMove: path => unit = "removeOnMove";
 
   [@bs.set] external setStrokeColor: (path, hexValue) => unit = "strokeColor";
@@ -246,6 +251,11 @@ and Path: {
   external regularPolygon: (center, sides, radius) => path = "RegularPolygon";
   [@bs.module "paper"] [@bs.scope "Path"] [@bs.val]
   external star: (center, points, radius1, radius2) => path = "Star";
+
+  
+  [@bs.send] external pathResponds: (path,string) => bool = "responds";
+  [@bs.send] external pathEventHandlerOn: (path,string, eventHandler) => unit = "on";
+  [@bs.send] external pathEventHandlerOff: (path,string, eventHandler) => unit = "off";
 
   [@bs.send] external removeOnMove: path => unit = "removeOnMove";
 
@@ -700,7 +710,6 @@ module CompoundPath: {
     mutable fillColor: Styling.Color.t,
   };
 
-
   [@bs.deriving abstract]
   type descriptionObject = {
     [@bs.optional]
@@ -743,13 +752,11 @@ module CompoundPath: {
   external create: descriptionObject => t = "CompoundPath";
   [@bs.module "paper"] [@bs.new]
   external createPointText: descriptionPointText => t = "CompoundPath";
-  
-
 
   [@bs.send] external remove: t => bool = "remove";
 
-  [@bs.get] external getPointextChildren: t => array(PointText.t) = "children";
-
+  [@bs.get]
+  external getPointextChildren: t => array(PointText.t) = "children";
 } = {
   type t = {
     firstSegment: Segment.t,
@@ -821,7 +828,6 @@ module CompoundPath: {
     children: array(PointText.t),
   };
 
-
   [@bs.module "paper"] [@bs.new]
   external create: descriptionObject => t = "CompoundPath";
   [@bs.module "paper"] [@bs.new]
@@ -829,7 +835,6 @@ module CompoundPath: {
 
   [@bs.send] external remove: t => bool = "remove";
 
-  
-  [@bs.get] external getPointextChildren: t => array(PointText.t) = "children";
-
+  [@bs.get]
+  external getPointextChildren: t => array(PointText.t) = "children";
 };

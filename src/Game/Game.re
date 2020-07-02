@@ -2,8 +2,8 @@
 type cssColor = string;
 type score = int;
 
-let minScore = 4;
-let diffScore = 1;
+let minScore = 150;
+let diffScore = 5;
 
 type player =
     | Human(cssColor,score)

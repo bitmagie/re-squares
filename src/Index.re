@@ -80,6 +80,7 @@ let game:Game.t = Game.setup(~dim=Layout.fieldsPerSide, ~renderer);
 
 
 // per default, the human begins the game
+game.firstMove = game.state.human;
 game.state = {
   ...game.state,
   currPlayer: game.state.human
@@ -281,11 +282,26 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
           } else {    
             ();    
           };  
-          let currPlayer:Game.player = switch(state.currPlayer){
-            | Human(color,_) => AI(color,0)
-            | AI(color,_)  => Human(color,0)
+           let currPlayer:Game.player = switch(game.firstMove){
+            | Human(color,_) =>{             
+               Human(color,0);
+            }
+            | AI(color,_)  => {              
+              AI(color,0)
+            }               
             | _ => Ghost
           };
+          let firstMove:Game.player = switch(game.firstMove){
+            | Human(color,_) =>{             
+               AI(color,0);
+            }
+            | AI(color,_)  => {              
+              Human(color,0)
+            }               
+            | _ => Ghost
+          };
+
+          game.firstMove = firstMove;
                                
           removeAiStuff();
           clearOverlay();
@@ -352,7 +368,7 @@ let loop:Game.loop(ToolEvent.t, Game.state) = (event, state) => {
           }
         };        
     }
-    | `showMoveResult(t) =>  if(t mod 100 == 0){ 
+    | `showMoveResult(t) =>  if(t mod 75 == 0){ 
           removeResults();
               // let winner = Game.getWinner(state.human,state.ai); // arguments order doesn't matter
               let winner = Game.getWinner(state.ai,state.human);

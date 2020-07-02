@@ -2,8 +2,8 @@
 type cssColor = string;
 type score = int;
 
-let minScore = 150;
-let diffScore = 5;
+let minScore = 4;
+let diffScore = 1;
 
 type player =
     | Human(cssColor,score)
@@ -55,7 +55,8 @@ type state = {
   };
 type t = {
   mutable state: state,
-  mutable renderer: GameRenderer.t
+  mutable renderer: GameRenderer.t,
+  mutable firstMove: player
 };
 
 
@@ -74,7 +75,8 @@ let setup = (~dim:int, ~renderer: GameRenderer.t):t => {
         result: [],
         action: `nothing,
     },
-    renderer
+    renderer,
+    firstMove: Ghost
   };
 };
 
